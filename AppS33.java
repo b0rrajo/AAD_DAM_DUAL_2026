@@ -1,57 +1,117 @@
 package com.carballeira.jdbc;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
-import java.io.IOException;
+import java.io.FileWriter;
 
 public class AppS33 {
 	public static void main(String [] Args) throws Exception {
-		BufferedReader lector = new BufferedReader(new FileReader("alumnos_notas.txt"));
 		String[] linea = new String[2];
-		lectura(lector, linea);
-		contar(lector, linea);
-	}
-	private static void contar(BufferedReader lector, String[] linea) {
-		System.out.println("RESUMEN DEL GRUPO");
+		String text = "";
+		double[] contador= new double [5];
+		lectura(linea, text);
+		contar(linea, text, contador);
 		
-		int[] contador= new int [3];
-		linea[0]="a"; linea[1]="a";
-		try{
-			
-			while((linea = lector.readLine().split(";")) != null) {
-				linea[0]="a"; linea[1]="a";
+	}
+	private static void contar(String[] linea, String text, double[] contador) throws Exception {
+		contador[4]=0;
+		System.out.println();
+		System.out.println("RESUMEN DEL GRUPO");
+		//TOTAL ALUMNOS
+		try(BufferedReader lector = new BufferedReader(new FileReader("alumnos_notas.txt"))){
+			while((text = lector.readLine()) != null) {
 				contador[0]++;
-				
 			}
-			
-			while((linea = lector.readLine().split(";"))!= null) {
-				int numero = Integer.parseInt(linea[1]);
-				if(numero>=5) {
+			lector.close();
+		}
+		catch(Exception e){
+			System.out.println("error!: " + e.getMessage());
+		}
+		
+		//Aprobados
+		try(BufferedReader lector = new BufferedReader(new FileReader("alumnos_notas.txt"))){
+			while((text = lector.readLine()) != null) {
+				linea = text.split(";");
+				double nota = Double.parseDouble(linea[1]);
+				if(nota>=5) {
 					contador[1]++;
 				}
-				if(numero<5) {
+			}
+			lector.close();
+		}
+		catch(Exception e){
+			System.out.println("error!: " + e.getMessage());
+		}
+		
+		//Suspensos
+		try(BufferedReader lector = new BufferedReader(new FileReader("alumnos_notas.txt"))){
+			while((text = lector.readLine()) != null) {
+				linea = text.split(";");
+				double nota = Double.parseDouble(linea[1]);
+				if(nota<5) {
 					contador[2]++;
 				}
-				
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
+			lector.close();
 		}
+		catch(Exception e){
+			System.out.println("error!: " + e.getMessage());
+		}
+		
+		//Media
+		try(BufferedReader lector = new BufferedReader(new FileReader("alumnos_notas.txt"))){
+			while((text = lector.readLine()) != null) {
+				contador[4]++;
+				linea = text.split(";");
+				double nota = Double.parseDouble(linea[1]);
+				contador[3]+=nota;
+			}
+			lector.close();
+		}
+		catch(Exception e){
+			System.out.println("error!: " + e.getMessage());
+		}
+		
+		double media = (contador[3]/contador[4]);
+		
 		System.out.println("Total alumnos: " + contador[0]);
 		System.out.println("Aprobados: " + contador[1]);
 		System.out.println("Suspensos: " + contador[2]);
+		System.out.println("Media: " + media);
 		
-	}
-	private static void lectura(BufferedReader lector, String[] linea2) throws Exception {
-		System.out.println("LISTADO DE ALUMNOS");
-		String[] linea = new String[2];
-		try{
-			while((linea = lector.readLine().split(";")) != null) {
-				System.out.println(linea[0] + " - " + linea[1]);
-			}
-		}catch(NullPointerException e) {
+		try(BufferedWriter escritor = new BufferedWriter(new FileWriter("resumen.txt"))){
+			escritor.write("RESUMEN DEL GRUPO");
+			escritor.newLine();
+			
+			escritor.write("Total alumnos: " + contador[0]);
+			escritor.newLine();
+			
+			escritor.write("Aprobados: " + contador[1]);
+			escritor.newLine();
+			
+			escritor.write("Suspensos: " + contador[2]);
+			escritor.newLine();
+			
+			escritor.write("Media: " + media);
+
+			System.out.println("Se guardó un resumen");
+		}catch(Exception e) {
 			System.out.println("error!: " + e.getMessage());
 		}
-		linea[0]="a"; linea[1]="a";
+	}
+	private static void lectura(String[] linea, String text) throws Exception {
+		BufferedReader lector = new BufferedReader(new FileReader("alumnos_notas.txt"));
+		System.out.println("LISTADO DE ALUMNOS");
+		
+		try{
+			while((text = lector.readLine()) != null) {
+				linea = text.split(";");
+				System.out.println(linea[0] + " - " + linea[1]);
+			}
+		}catch(Exception e){
+			System.out.println("error!: " + e.getMessage());
+		}
+		lector.close();
 	}
 }
